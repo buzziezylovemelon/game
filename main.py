@@ -16,13 +16,22 @@ class MatchingGameApp(App):
         self.root = GridLayout(cols=4, spacing=10, padding=10)
         self.cards = []
 
-        # รูปภาพตัวอย่าง (สามารถเปลี่ยนเป็น path ของรูปจริง)
-        images = ['🍎', '🍌', '🍓', '🍇', '🍉', '🍍', '🍒', '🥝']
+        # Path ของรูปภาพ (ปรับ path ให้ตรงกับไฟล์จริง)
+        images = [
+            'images/apple.jpg',
+            'images/banana.jpg',
+            'images/strawberry.jpg',
+            'images/grape.jpg',
+            'images/watermelon.jpg',
+            'images/pineapple.jpg',
+            'images/cherry.jpg',
+            'images/kiwi.jpg',
+        ]
         images = images * 2  # ทำให้มี 2 ใบต่อรูป
         shuffle(images)
 
         for image in images:
-            card = Button(text='', font_size=32, background_normal='', background_color=(1, 1, 1, 1))
+            card = Button(background_normal='', background_color=(1, 1, 1, 1))
             card.image = image
             card.revealed = False
             card.bind(on_press=self.on_card_click)
@@ -38,7 +47,8 @@ class MatchingGameApp(App):
             return
 
         # แสดงรูปของไพ่
-        card.text = card.image
+        card.background_normal = card.image
+        card.background_color = (1, 1, 1, 1)  # ตั้งค่า background ให้แสดงปกติ
         card.revealed = True
 
         if not self.first_card:
@@ -58,8 +68,8 @@ class MatchingGameApp(App):
             Clock.schedule_once(self.hide_cards, 1)
 
     def hide_cards(self, dt):
-        self.first_card.text = ''
-        self.second_card.text = ''
+        self.first_card.background_normal = ''  # ซ่อนรูปภาพ
+        self.second_card.background_normal = ''  # ซ่อนรูปภาพ
         self.first_card.revealed = False
         self.second_card.revealed = False
         self.first_card = None
