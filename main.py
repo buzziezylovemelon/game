@@ -23,14 +23,27 @@ class MatchingGameApp(App):
 
     def show_mode_selection(self, instance):
         self.root.clear_widgets()
+
+        # สร้างแถบด้านบนพร้อมปุ่ม "left"
+        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
+        back_button = Button(background_normal='images/left.jpg', size_hint=(None, None), size=(50, 50),
+                              on_press=lambda x: self.create_main_menu())
+        top_bar.add_widget(back_button)
+
+        # เพิ่มข้อความ "Select Difficulty"
         title = Label(text="Select Difficulty", font_size=24, size_hint=(1, 0.2))
+
+        # เพิ่มปุ่มเลือกระดับความยาก
         easy_button = Button(text="Easy", size_hint=(1, 0.2), on_press=lambda x: self.start_game(4, 4, 'easy'))
         normal_button = Button(text="Normal", size_hint=(1, 0.2), on_press=lambda x: self.start_game(5, 4, 'normal'))
         hard_button = Button(text="Hard", size_hint=(1, 0.2), on_press=lambda x: self.start_game(6, 5, 'hard'))
-        self.root.add_widget(title)
-        self.root.add_widget(easy_button)
-        self.root.add_widget(normal_button)
-        self.root.add_widget(hard_button)
+
+        # เพิ่ม widgets ทั้งหมดใน root layout
+        self.root.add_widget(top_bar)  # แถบด้านบน
+        self.root.add_widget(title)  # ข้อความหัวเรื่อง
+        self.root.add_widget(easy_button)  # ปุ่ม Easy
+        self.root.add_widget(normal_button)  # ปุ่ม Normal
+        self.root.add_widget(hard_button)  # ปุ่ม Hard
 
     def start_game(self, rows, cols, mode):
         self.root.clear_widgets()
@@ -50,10 +63,10 @@ class MatchingGameApp(App):
             ]
         elif mode == 'normal':
             images = [
-                'images/normal/dog.jpg', 'images/normal/cat.jpg', 'images/normal/bird.jpg',
-                'images/normal/fish.jpg', 'images/normal/horse.jpg', 'images/normal/lion.jpg',
-                'images/normal/tiger.jpg', 'images/normal/elephant.jpg', 'images/normal/monkey.jpg',
-                'images/normal/rabbit.jpg'
+                'images/meme1.jpg', 'images/meme5.jpg', 'images/meme8.jpg',
+                'images/meme2.jpg', 'images/meme6.jpg', 'images/meme9.jpg',
+                'images/meme3.jpg', 'images/meme7.jpg', 'images/meme10.jpg',
+                'images/meme4.jpg'
             ]
         elif mode == 'hard':
             images = [
@@ -67,6 +80,13 @@ class MatchingGameApp(App):
         images = images[:(rows * cols) // 2] * 2  # Limit images to fit the grid
         shuffle(images)
 
+        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
+        back_button = Button(background_normal='images/left.jpg', size_hint=(None, None), size=(50, 50),
+                              on_press=lambda x: self.show_mode_selection(None))
+        top_bar.add_widget(back_button)
+        self.info_label = Label(text=f"Moves: {self.moves} | Mistakes: {self.mistakes}", font_size=20)
+        top_bar.add_widget(self.info_label)
+
         grid = GridLayout(cols=cols, spacing=10, padding=10)
         self.cards = []
 
@@ -78,8 +98,7 @@ class MatchingGameApp(App):
             self.cards.append(card)
             grid.add_widget(card)
 
-        self.info_label = Label(text=f"Moves: {self.moves} | Mistakes: {self.mistakes}", font_size=20, size_hint_y=None, height=50)
-        self.root.add_widget(self.info_label)
+        self.root.add_widget(top_bar)
         self.root.add_widget(grid)
 
     def on_card_click(self, card):
