@@ -24,26 +24,21 @@ class MatchingGameApp(App):
     def show_mode_selection(self, instance):
         self.root.clear_widgets()
 
-        # สร้างแถบด้านบนพร้อมปุ่ม "left"
         top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
         back_button = Button(background_normal='images/left.jpg', size_hint=(None, None), size=(50, 50),
                               on_press=lambda x: self.create_main_menu())
         top_bar.add_widget(back_button)
 
-        # เพิ่มข้อความ "Select Difficulty"
         title = Label(text="Select Difficulty", font_size=24, size_hint=(1, 0.2))
-
-        # เพิ่มปุ่มเลือกระดับความยาก
         easy_button = Button(text="Easy", size_hint=(1, 0.2), on_press=lambda x: self.start_game(4, 4, 'easy'))
         normal_button = Button(text="Normal", size_hint=(1, 0.2), on_press=lambda x: self.start_game(5, 4, 'normal'))
         hard_button = Button(text="Hard", size_hint=(1, 0.2), on_press=lambda x: self.start_game(6, 5, 'hard'))
 
-        # เพิ่ม widgets ทั้งหมดใน root layout
-        self.root.add_widget(top_bar)  # แถบด้านบน
-        self.root.add_widget(title)  # ข้อความหัวเรื่อง
-        self.root.add_widget(easy_button)  # ปุ่ม Easy
-        self.root.add_widget(normal_button)  # ปุ่ม Normal
-        self.root.add_widget(hard_button)  # ปุ่ม Hard
+        self.root.add_widget(top_bar)
+        self.root.add_widget(title)
+        self.root.add_widget(easy_button)
+        self.root.add_widget(normal_button)
+        self.root.add_widget(hard_button)
 
     def start_game(self, rows, cols, mode):
         self.root.clear_widgets()
@@ -70,14 +65,14 @@ class MatchingGameApp(App):
             ]
         elif mode == 'hard':
             images = [
-                'images/hard/car.jpg', 'images/hard/bus.jpg', 'images/hard/train.jpg',
-                'images/hard/plane.jpg', 'images/hard/ship.jpg', 'images/hard/bike.jpg',
-                'images/hard/truck.jpg', 'images/hard/rocket.jpg', 'images/hard/helicopter.jpg',
-                'images/hard/submarine.jpg', 'images/hard/tractor.jpg', 'images/hard/scooter.jpg',
-                'images/hard/yacht.jpg', 'images/hard/balloon.jpg', 'images/hard/glider.jpg'
+                'images/lfc1.jpg', 'images/lfc6.jpg', 'images/lfc11.jpg',
+                'images/lfc2.jpg', 'images/lfc7.jpg', 'images/lfc12.jpg',
+                'images/lfc3.jpg', 'images/lfc8.jpg', 'images/lfc13.jpg',
+                'images/lfc4.jpg', 'images/lfc9.jpg', 'images/lfc14.jpg',
+                'images/lfc5.jpg', 'images/lfc10.jpg', 'images/lfc15.jpg'
             ]
 
-        images = images[:(rows * cols) // 2] * 2  # Limit images to fit the grid
+        images = images[:(rows * cols) // 2] * 2
         shuffle(images)
 
         top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
@@ -122,7 +117,8 @@ class MatchingGameApp(App):
             self.second_card = None
             self.score += 1
             if self.score == len(self.cards) // 2:
-                self.show_win_screen()
+                self.waiting = True
+                Clock.schedule_once(self.delayed_show_win_screen, 3)  # เพิ่มดีเลย์ 5 วินาที
         else:
             self.mistakes += 1
             self.update_info()
@@ -137,6 +133,9 @@ class MatchingGameApp(App):
         self.first_card = None
         self.second_card = None
         self.waiting = False
+
+    def delayed_show_win_screen(self, dt):
+        self.show_win_screen()
 
     def update_info(self):
         self.info_label.text = f"Moves: {self.moves} | Mistakes: {self.mistakes}"
