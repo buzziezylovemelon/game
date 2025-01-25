@@ -160,15 +160,6 @@ class MatchingGameApp(App):
         )
         top_bar.add_widget(back_button)
 
-        self.info_label = Label(
-            text=f"Moves: {self.moves} | Mistakes: {self.mistakes}",
-            font_size=20,
-            size_hint=(1, None),
-            height=50,
-            pos_hint={'center_x': 0.5, 'y': 0}
-        )
-        top_bar.add_widget(self.info_label)
-
         grid = GridLayout(cols=cols, spacing=10, padding=10, size_hint=(None, None))
         grid.bind(minimum_width=grid.setter('width'))
         grid.width = cols * 148 + (cols - 1) * 10
@@ -179,7 +170,7 @@ class MatchingGameApp(App):
 
         for image in images:
             card = Button(
-                background_normal='images/heatt.png',  # เปลี่ยนเป็น heatt.png
+                background_normal='images/heatt.png',
                 background_color=(1, 1, 1, 1),
                 size_hint=(None, None),
                 size=(148, 132)
@@ -205,7 +196,6 @@ class MatchingGameApp(App):
         elif not self.second_card:
             self.second_card = card
             self.moves += 1
-            self.update_info()
             self.check_match()
 
     def check_match(self):
@@ -218,13 +208,12 @@ class MatchingGameApp(App):
                 Clock.schedule_once(self.delayed_show_win_screen, 3)
         else:
             self.mistakes += 1
-            self.update_info()
             self.waiting = True
             Clock.schedule_once(self.hide_cards, 1)
 
     def hide_cards(self, dt):
-        self.first_card.background_normal = 'images/heatt.png'  # ซ่อนกลับเป็น heatt.png
-        self.second_card.background_normal = 'images/heatt.png'  # ซ่อนกลับเป็น heatt.png
+        self.first_card.background_normal = 'images/heatt.png'
+        self.second_card.background_normal = 'images/heatt.png'
         self.first_card.revealed = False
         self.second_card.revealed = False
         self.first_card = None
@@ -235,17 +224,39 @@ class MatchingGameApp(App):
         self.show_win_screen()
 
     def update_info(self):
-        self.info_label.text = f"Moves: {self.moves} | Mistakes: {self.mistakes}"
+        pass  # ไม่แสดงข้อมูล Moves และ Mistakes
 
     def show_win_screen(self):
         self.root.clear_widgets()
-        self.set_background('images/bnk11.png')
+        self.set_background('images/youwinn.png')  # เปลี่ยนพื้นหลังเป็น youwinn.png
 
-        front_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        front_layout = BoxLayout(
+            orientation='vertical',
+            padding=[50, 50, 50, 50],
+            spacing=20,
+            size_hint=(None, None),
+            size=(900, 400),
+            pos_hint={'center_x': 0.5, 'center_y': 0.5}
+        )
 
         elapsed_time = round(time.time() - self.start_time, 2)
-        win_label = Label(text=f"You Win!\nTime: {elapsed_time} seconds\nMoves: {self.moves}", font_size=24, size_hint=(1, 0.5))
-        back_button = Button(text="Back to Main Menu", size_hint=(1, 0.2), on_press=lambda x: self.create_main_menu())
+
+        win_label = Label(
+            text=f"",
+            font_size=24,
+            size_hint=(1, 0.7),
+            halign='center',
+            valign='middle'
+        )
+        win_label.bind(size=win_label.setter('text_size'))
+
+        back_button = Button(
+            background_normal='images/back_black.png',
+            size_hint=(None, None),
+            size=(816, 80),
+            pos_hint={'center_x': 0.5},
+            on_press=lambda x: self.create_main_menu()
+        )
 
         front_layout.add_widget(win_label)
         front_layout.add_widget(back_button)
