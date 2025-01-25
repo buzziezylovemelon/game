@@ -6,53 +6,55 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.clock import Clock
+from kivy.core.window import Window
 from random import shuffle
 import time
 
+
 class MatchingGameApp(App):
     def build(self):
+        Window.size = (1280, 720)
         self.start_time = None
-        self.root = RelativeLayout()  # ใช้ RelativeLayout เพื่อรองรับพื้นหลัง
+        self.root = RelativeLayout()
         self.create_main_menu()
         return self.root
 
     def set_background(self, image_path):
-        """ตั้งค่าพื้นหลังด้วยรูปภาพ"""
-        background = Image(source=image_path, allow_stretch=True, keep_ratio=False)
+        background = Image(
+            source=image_path,
+            allow_stretch=True,
+            keep_ratio=False,
+            size_hint=(1, 1)
+        )
         self.root.add_widget(background)
 
     def create_main_menu(self):
         self.root.clear_widgets()
-        self.set_background('images/bnk123.png')  # พื้นหลังเฉพาะสำหรับหน้าแรก
+        self.set_background('images/bnk123.png')
 
-        # Layout สำหรับ Widget ด้านหน้า
         front_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
-        # Title label
         title = Label(text="", font_size=32, size_hint=(1, 0.2))
 
-        # Container to center the play button
         play_button_container = BoxLayout(
             size_hint=(1, 1),
             orientation='vertical',
             padding=[0, 50, 0, 50]
         )
 
-        # Play button with an image
         play_button = Button(
-            background_normal='images/play.jpg',
-            background_down='images/play_button_down.jpg',
+            background_normal='images/play1.png',
+            background_down='images/play2.png',
             size_hint=(None, None),
-            size=(200, 100),
+            size=(816, 79),
             pos_hint={'center_x': 0.5},
             on_press=self.show_mode_selection
         )
 
-        play_button_container.add_widget(Label(size_hint=(1, 0.7)))
+        play_button_container.add_widget(Label(size_hint=(1, 0.5)))
         play_button_container.add_widget(play_button)
-        play_button_container.add_widget(Label(size_hint=(1, 0.3)))
+        play_button_container.add_widget(Label(size_hint=(1, 0.4)))
 
-        # Add widgets to the layout
         front_layout.add_widget(title)
         front_layout.add_widget(play_button_container)
 
@@ -60,36 +62,58 @@ class MatchingGameApp(App):
 
     def show_mode_selection(self, instance):
         self.root.clear_widgets()
-        self.set_background('images/bnk11.png')  # พื้นหลังสำหรับหน้าที่เหลือ
+        self.set_background('images/bnnn.png')
 
-        front_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        layout = RelativeLayout()
 
-        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
-        back_button = Button(background_normal='images/left.jpg', size_hint=(None, None), size=(50, 50),
-                              on_press=lambda x: self.create_main_menu())
-        top_bar.add_widget(back_button)
+        # Back Button
+        back_button = Button(
+            background_normal='images/leftblack.png',
+            size_hint=(None, None),
+            size=(223.2, 72),
+            pos_hint={'x': 0.05, 'y': 0.85},
+            on_press=lambda x: self.create_main_menu()
+        )
+        layout.add_widget(back_button)
 
-        title = Label(text="Select Difficulty", font_size=24, size_hint=(1, 0.2))
-        easy_button = Button(text="Easy", size_hint=(0.5, None), height=50, pos_hint={'center_x': 0.5})
-        normal_button = Button(text="Normal", size_hint=(0.5, None), height=50, pos_hint={'center_x': 0.5})
-        hard_button = Button(text="Hard", size_hint=(0.5, None), height=50, pos_hint={'center_x': 0.5})
-
-        # Bind actions to buttons
+        # Easy Button
+        easy_button = Button(
+            background_normal='images/easy1.png',
+            background_down='images/easy2.png',
+            size_hint=(None, None),
+            size=(816, 79),
+            pos_hint={'center_x': 0.5, 'y': 0.45}
+        )
         easy_button.bind(on_press=lambda x: self.start_game(4, 4, 'easy'))
+        layout.add_widget(easy_button)
+
+        # Normal Button
+        normal_button = Button(
+            background_normal='images/normal1.png',
+            background_down='images/normal2.png',
+            size_hint=(None, None),
+            size=(816, 79),
+            pos_hint={'center_x': 0.5, 'y': 0.35}
+        )
         normal_button.bind(on_press=lambda x: self.start_game(5, 4, 'normal'))
+        layout.add_widget(normal_button)
+
+        # Hard Button
+        hard_button = Button(
+            background_normal='images/hard1.png',
+            background_down='images/hard2.png',
+            size_hint=(None, None),
+            size=(816, 79),
+            pos_hint={'center_x': 0.5, 'y': 0.25}
+        )
         hard_button.bind(on_press=lambda x: self.start_game(6, 5, 'hard'))
+        layout.add_widget(hard_button)
 
-        front_layout.add_widget(top_bar)
-        front_layout.add_widget(title)
-        front_layout.add_widget(easy_button)
-        front_layout.add_widget(normal_button)
-        front_layout.add_widget(hard_button)
-
-        self.root.add_widget(front_layout)
+        self.root.add_widget(layout)
 
     def start_game(self, rows, cols, mode):
         self.root.clear_widgets()
-        self.set_background('images/bnk11.png')  # พื้นหลังสำหรับหน้าที่เหลือ
+        self.set_background('images/bnk11.png')
 
         self.score = 0
         self.moves = 0
@@ -101,41 +125,65 @@ class MatchingGameApp(App):
 
         if mode == 'easy':
             images = [
-                'images/cat1.jpg', 'images/cat4.jpg', 'images/cat7.jpg',
-                'images/cat2.jpg', 'images/cat5.jpg', 'images/cat8.jpg',
-                'images/cat3.jpg', 'images/cat6.jpg'
+                'images/ea1.png', 'images/ea4.png', 'images/ea7.png',
+                'images/ea2.png', 'images/ea5.png', 'images/ea8.png',
+                'images/ea3.png', 'images/ea6.png'
             ]
         elif mode == 'normal':
             images = [
-                'images/meme1.jpg', 'images/meme5.jpg', 'images/meme8.jpg',
-                'images/meme2.jpg', 'images/meme6.jpg', 'images/meme9.jpg',
-                'images/meme3.jpg', 'images/meme7.jpg', 'images/meme10.jpg',
-                'images/meme4.jpg'
+                'images/no1.png', 'images/no5.png', 'images/no8.png',
+                'images/no2.png', 'images/no6.png', 'images/no9.png',
+                'images/no3.png', 'images/no7.png', 'images/no10.png',
+                'images/no4.png'
             ]
         elif mode == 'hard':
             images = [
-                'images/lfc1.jpg', 'images/lfc6.jpg', 'images/lfc11.jpg',
-                'images/lfc2.jpg', 'images/lfc7.jpg', 'images/lfc12.jpg',
-                'images/lfc3.jpg', 'images/lfc8.jpg', 'images/lfc13.jpg',
-                'images/lfc4.jpg', 'images/lfc9.jpg', 'images/lfc14.jpg',
-                'images/lfc5.jpg', 'images/lfc10.jpg', 'images/lfc15.jpg'
+                'images/ha1.png', 'images/ha6.png', 'images/ha11.png',
+                'images/ha2.png', 'images/ha7.png', 'images/ha12.png',
+                'images/ha3.png', 'images/ha8.png', 'images/ha13.png',
+                'images/ha4.png', 'images/ha9.png', 'images/ha14.png',
+                'images/ha5.png', 'images/ha10.png', 'images/ha15.png'
             ]
 
         images = images[:(rows * cols) // 2] * 2
         shuffle(images)
 
-        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
-        back_button = Button(background_normal='images/left.jpg', size_hint=(None, None), size=(50, 50),
-                              on_press=lambda x: self.show_mode_selection(None))
+        top_bar = RelativeLayout(size_hint_y=None, height=100)
+
+        # Back Button
+        back_button = Button(
+            background_normal='images/leftblack.png',
+            size_hint=(None, None),
+            size=(223.2, 72),
+            pos_hint={'x': 0.05, 'y': 7.65},
+            on_press=lambda x: self.show_mode_selection(None)
+        )
         top_bar.add_widget(back_button)
-        self.info_label = Label(text=f"Moves: {self.moves} | Mistakes: {self.mistakes}", font_size=20)
+
+        self.info_label = Label(
+            text=f"Moves: {self.moves} | Mistakes: {self.mistakes}",
+            font_size=20,
+            size_hint=(1, None),
+            height=50,
+            pos_hint={'center_x': 0.5, 'y': 0}
+        )
         top_bar.add_widget(self.info_label)
 
-        grid = GridLayout(cols=cols, spacing=10, padding=10)
+        grid = GridLayout(cols=cols, spacing=10, padding=10, size_hint=(None, None))
+        grid.bind(minimum_width=grid.setter('width'))
+        grid.width = cols * 148 + (cols - 1) * 10
+        grid.height = rows * 132 + (rows - 1) * 10
+        grid.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+
         self.cards = []
 
         for image in images:
-            card = Button(background_normal='', background_color=(1, 1, 1, 1))
+            card = Button(
+                background_normal='images/heatt.png',  # เปลี่ยนเป็น heatt.png
+                background_color=(1, 1, 1, 1),
+                size_hint=(None, None),
+                size=(148, 132)
+            )
             card.image = image
             card.revealed = False
             card.bind(on_press=self.on_card_click)
@@ -167,7 +215,7 @@ class MatchingGameApp(App):
             self.score += 1
             if self.score == len(self.cards) // 2:
                 self.waiting = True
-                Clock.schedule_once(self.delayed_show_win_screen, 3)  # Add a 3-second delay
+                Clock.schedule_once(self.delayed_show_win_screen, 3)
         else:
             self.mistakes += 1
             self.update_info()
@@ -175,8 +223,8 @@ class MatchingGameApp(App):
             Clock.schedule_once(self.hide_cards, 1)
 
     def hide_cards(self, dt):
-        self.first_card.background_normal = ''
-        self.second_card.background_normal = ''
+        self.first_card.background_normal = 'images/heatt.png'  # ซ่อนกลับเป็น heatt.png
+        self.second_card.background_normal = 'images/heatt.png'  # ซ่อนกลับเป็น heatt.png
         self.first_card.revealed = False
         self.second_card.revealed = False
         self.first_card = None
@@ -191,7 +239,7 @@ class MatchingGameApp(App):
 
     def show_win_screen(self):
         self.root.clear_widgets()
-        self.set_background('images/bnk11.png')  # พื้นหลังสำหรับหน้าที่เหลือ
+        self.set_background('images/bnk11.png')
 
         front_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
@@ -203,6 +251,7 @@ class MatchingGameApp(App):
         front_layout.add_widget(back_button)
 
         self.root.add_widget(front_layout)
+
 
 if __name__ == '__main__':
     MatchingGameApp().run()
