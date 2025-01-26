@@ -7,6 +7,7 @@ from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.core.audio import SoundLoader  # เพิ่มการโหลดเสียง
 from random import shuffle
 import time
 
@@ -14,10 +15,22 @@ import time
 class MatchingGameApp(App):
     def build(self):
         Window.size = (1280, 720)
+        Window.top = 50
+        Window.left = 150
         self.start_time = None
         self.root = RelativeLayout()
+        self.load_sounds()  # โหลดเสียงเมื่อเริ่มต้น
         self.create_main_menu()
         return self.root
+
+    def load_sounds(self):
+        # โหลดเสียงจากไฟล์
+        self.click_sound = SoundLoader.load('sound/test.mp3')
+        if self.click_sound:
+            print("Sound loaded successfully!")
+            self.click_sound.volume = 1.0  # ตั้งค่าระดับเสียง (0.0 ถึง 1.0)
+        else:
+            print("Failed to load sound. Please check the file path and format.")
 
     def set_background(self, image_path):
         background = Image(
@@ -51,6 +64,9 @@ class MatchingGameApp(App):
             on_press=self.show_mode_selection
         )
 
+        # เปลี่ยนรูปภาพเมื่อเมาส์ชี้ไปที่ปุ่ม
+        play_button.bind(on_state=self.on_play_button_state)
+
         play_button_container.add_widget(Label(size_hint=(1, 0.5)))
         play_button_container.add_widget(play_button)
         play_button_container.add_widget(Label(size_hint=(1, 0.4)))
@@ -59,6 +75,12 @@ class MatchingGameApp(App):
         front_layout.add_widget(play_button_container)
 
         self.root.add_widget(front_layout)
+
+    def on_play_button_state(self, button, state):
+        if state == 'down':
+            button.background_normal = 'images/play2.png'
+        else:
+            button.background_normal = 'images/play1.png'
 
     def show_mode_selection(self, instance):
         self.root.clear_widgets()
@@ -123,29 +145,7 @@ class MatchingGameApp(App):
         self.waiting = False
         self.start_time = time.time()
 
-        if mode == 'easy':
-            images = [
-                'images/ea1.png', 'images/ea4.png', 'images/ea7.png',
-                'images/ea2.png', 'images/ea5.png', 'images/ea8.png',
-                'images/ea3.png', 'images/ea6.png'
-            ]
-        elif mode == 'normal':
-            images = [
-                'images/no1.png', 'images/no5.png', 'images/no8.png',
-                'images/no2.png', 'images/no6.png', 'images/no9.png',
-                'images/no3.png', 'images/no7.png', 'images/no10.png',
-                'images/no4.png'
-            ]
-        elif mode == 'hard':
-            images = [
-                'images/ha1.png', 'images/ha6.png', 'images/ha11.png',
-                'images/ha2.png', 'images/ha7.png', 'images/ha12.png',
-                'images/ha3.png', 'images/ha8.png', 'images/ha13.png',
-                'images/ha4.png', 'images/ha9.png', 'images/ha14.png',
-                'images/ha5.png', 'images/ha10.png', 'images/ha15.png'
-            ]
-
-        images = images[:(rows * cols) // 2] * 2
+        images = self.get_images_by_mode(mode)
         shuffle(images)
 
         top_bar = RelativeLayout(size_hint_y=None, height=100)
@@ -184,9 +184,37 @@ class MatchingGameApp(App):
         self.root.add_widget(top_bar)
         self.root.add_widget(grid)
 
+    def get_images_by_mode(self, mode):
+        if mode == 'easy':
+            return [
+                'images/ea1.png', 'images/ea4.png', 'images/ea7.png',
+                'images/ea2.png', 'images/ea5.png', 'images/ea8.png',
+                'images/ea3.png', 'images/ea6.png'
+            ] * 2
+        elif mode == 'normal':
+            return [
+                'images/no1.png', 'images/no5.png', 'images/no8.png',
+                'images/no2.png', 'images/no6.png', 'images/no9.png',
+                'images/no3.png', 'images/no7.png', 'images/no10.png',
+                'images/no4.png'
+            ] * 2
+        elif mode == 'hard':
+            return [
+                'images/ha1.png', 'images/ha6.png', 'images/ha11.png',
+                'images/ha2.png', 'images/ha7.png', 'images/ha12.png',
+                'images/ha3.png', 'images/ha8.png', 'images/ha13.png',
+                'images/ha4.png', 'images/ha9.png', 'images/ha14.png',
+                'images/ha5.png', 'images/ha10.png', 'images/ha15.png'
+            ] * 2
+
     def on_card_click(self, card):
         if self.waiting or card.revealed:
             return
+
+        print("Card clicked!")  # Debug: ตรวจสอบว่าฟังก์ชันถูกเรียก
+        if self.click_sound:
+            print("Playing sound...")  # Debug: ตรวจสอบการเล่นเสียง
+            self.click_sound.play()  # เล่นเสียงเมื่อคลิก
 
         card.background_normal = card.image
         card.revealed = True
@@ -223,9 +251,6 @@ class MatchingGameApp(App):
     def delayed_show_win_screen(self, dt):
         self.show_win_screen()
 
-    def update_info(self):
-        pass  # ไม่แสดงข้อมูล Moves และ Mistakes
-
     def show_win_screen(self):
         self.root.clear_widgets()
         self.set_background('images/youwinn.png')  # เปลี่ยนพื้นหลังเป็น youwinn.png
@@ -239,17 +264,6 @@ class MatchingGameApp(App):
             pos_hint={'center_x': 0.5, 'center_y': 0.5}
         )
 
-        elapsed_time = round(time.time() - self.start_time, 2)
-
-        win_label = Label(
-            text=f"",
-            font_size=24,
-            size_hint=(1, 0.7),
-            halign='center',
-            valign='middle'
-        )
-        win_label.bind(size=win_label.setter('text_size'))
-
         back_button = Button(
             background_normal='images/back_black.png',
             size_hint=(None, None),
@@ -258,7 +272,6 @@ class MatchingGameApp(App):
             on_press=lambda x: self.create_main_menu()
         )
 
-        front_layout.add_widget(win_label)
         front_layout.add_widget(back_button)
 
         self.root.add_widget(front_layout)
